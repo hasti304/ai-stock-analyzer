@@ -29,5 +29,13 @@ export const stockAPI = {
   healthCheck: async () => {
     const response = await axios.get(`${API_BASE_URL}/health`);
     return response.data;
+  },
+
+  optimizePortfolio: async (symbols, period = '1y') => {
+    const response = await axios.post(`${API_BASE_URL}/portfolio/optimize`, {
+      symbols,
+      period
+    });
+    return response.data;
   }
 };

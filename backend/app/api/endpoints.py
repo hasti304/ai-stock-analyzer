@@ -55,3 +55,33 @@ def predict_stock(symbol):
         return jsonify(result), 200
     else:
         return jsonify(result), 500
+
+@api_bp.route('/portfolio/optimize', methods=['POST'])
+def optimize_portfolio():
+    from ..portfolio_optimizer import PortfolioOptimizer
+    
+    data = request.get_json()
+    symbols = data.get('symbols', [])
+    period = data.get('period', '1y')
+    
+    if not symbols or len(symbols) < 2:
+        return jsonify({'error': 'At least 2 stock symbols required'}), 400
+    
+    optimizer = PortfolioOptimizer(symbols, period)
+    
+    if not optimizer.fetch_data():
+        return jsonify({'error': 'Failed to fetch stock data'}), 500
+    
+    optimal = optimizer.optimize_portfolio()
+    
+    if optimal is None:
+        return jsonify({'error': 'Optimization failed'}), 500
+    
+    frontier = optimizer.efficient_frontier(50)
+    
+    return jsonify({
+        'success': True,
+        'optimal_portfolio': optimal,
+        'efficient_frontier': frontier,
+        'symbols': symbols
+    }), 200
