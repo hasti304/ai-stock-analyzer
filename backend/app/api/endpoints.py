@@ -43,3 +43,15 @@ def get_stock_prices(symbol):
         return jsonify(result), 200
     else:
         return jsonify({'error': 'Stock not found'}), 404
+
+@api_bp.route('/stocks/<symbol>/predict', methods=['GET'])
+def predict_stock(symbol):
+    from ..ml_service import MLService
+    
+    periods = request.args.get('periods', 30, type=int)
+    result = MLService.train_and_predict(symbol, periods)
+    
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 500
